@@ -6,7 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "node tools/generate-llms.js || true && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
+    "clean": "rm -rf dist node_modules package-lock.json && npm install",
+    "start": "npm run dev",
+    "deploy": "node deploy.js",
+    "create-component": "node scripts/create-component.js"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.2.1",
