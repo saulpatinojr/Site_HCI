@@ -12,6 +12,8 @@
     "clean": "rm -rf dist node_modules package-lock.json && npm install",
     "start": "npm run dev",
     "deploy": "node deploy.js",
+    "firebase:deploy": "npm run build && firebase deploy",
+    "firebase:serve": "npm run build && firebase serve",
     "create-component": "node scripts/create-component.js"
   },
   "dependencies": {
