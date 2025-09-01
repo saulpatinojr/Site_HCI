@@ -8,11 +8,13 @@ import { useData } from '@/context/DataContext';
 import SessionizeWidget from '@/components/SessionizeWidget';
 
 const AboutPage = () => {
-  const { certifications, loading } = useData();
+  const { certifications, loading, error } = useData();
 
   const certificationsByIssuer = useMemo(() => {
-    if (loading.certifications || !certifications) return {};
-    return certifications.reduce((acc, cert) => {
+    if (!certifications) return {};
+    const sortedCerts = [...certifications].sort((a, b) => (a.display_order || 999) - (b.display_order || 999));
+
+    return sortedCerts.reduce((acc, cert) => {
       const issuer = cert.issuer || 'Other';
       if (!acc[issuer]) {
         acc[issuer] = [];
@@ -20,7 +22,39 @@ const AboutPage = () => {
       acc[issuer].push(cert);
       return acc;
     }, {});
-  }, [certifications, loading.certifications]);
+  }, [certifications]);
+
+  // Sort certifications within each issuer alphabetically
+  const sortedCertificationsByIssuer = useMemo(() => {
+    const sorted = {};
+    Object.keys(certificationsByIssuer).forEach(issuer => {
+      sorted[issuer] = [...certificationsByIssuer[issuer]].sort((a, b) => 
+        (a.name || '').localeCompare(b.name || '')
+      );
+    });
+    return sorted;
+  }, [certifications]);
+
+  const PREFERRED_ISSUER_ORDER = [
+    'Amazon Web Services',
+    'Google Cloud',
+    'Microsoft',
+    'Broadcom',
+    'Microsoft Global Partner Solutions (GPS)'
+  ];
+  
+  const issuerOrder = Object.keys(certificationsByIssuer).sort((a, b) => {
+    const aIndex = PREFERRED_ISSUER_ORDER.indexOf(a);
+    const bIndex = PREFERRED_ISSUER_ORDER.indexOf(b);
+    
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    
+    return a.localeCompare(b);
+  });
 
   return (
     <>
@@ -79,35 +113,54 @@ const AboutPage = () => {
                   <div className="flex justify-center items-center py-10">
                       <Loader2 className="w-10 h-10 text-neon-pink animate-spin" />
                   </div>
-              ) : Object.keys(certificationsByIssuer).length === 0 ? (
+              ) : error.certifications ? (
+                  <div className="text-center p-8 retro-card">
+                      <ShieldCheck className="w-12 h-12 mx-auto text-text-med mb-4" />
+                      <h3 className="text-xl font-display text-white">Error Loading Certifications</h3>
+                      <p className="text-text-light mt-2">{error.certifications}</p>
+                  </div>
+              ) : issuerOrder.length === 0 ? (
                   <div className="text-center p-8 retro-card">
                       <ShieldCheck className="w-12 h-12 mx-auto text-text-med mb-4" />
                       <h3 className="text-xl font-display text-white">No Certifications Found</h3>
                   </div>
               ) : (
                   <div className="space-y-6 max-h-[600px] overflow-y-auto pr-2">
-                    {Object.entries(certificationsByIssuer).map(([issuer, certs]) => (
+                    {issuerOrder.map((issuer) => (
                       <div key={issuer}>
                         <h3 className="text-2xl font-display text-electric-teal mb-4 flex items-center">
                           <Award className="w-6 h-6 mr-3" />
                           {issuer}
                         </h3>
                         <div className="space-y-4">
-                          {certs.map((cert) => (
-                            <div key={cert.id} className="retro-card p-4 flex items-center space-x-4">
-                              <img src={cert.image_url} alt={`${cert.name} icon`} className="w-12 h-12 object-contain flex-shrink-0" />
-                              <div className="flex-grow">
-                                <p className="font-semibold text-white">{cert.name}</p>
-                                 {cert.verify_url && (
-                                  <a href={cert.verify_url} target="_blank" rel="noopener noreferrer">
-                                  <Button variant="link" className="p-0 h-auto text-neon-pink hover:text-electric-teal font-mono text-sm">
-                                    Verify <ExternalLink className="w-3 h-3 ml-1" />
-                                  </Button>
-                                </a>
-                                 )}
+                          {sortedCertificationsByIssuer[issuer].map((cert) => {
+                            const formattedExpDate = cert.exp_date 
+                              ? new Date(cert.exp_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                              : null;
+                            
+                            return (
+                              <div key={cert.id} className="retro-card p-4 flex items-center space-x-4 relative">
+                                {cert.image_url && (
+                                  <img src={cert.image_url} alt={`${cert.name} icon`} className="w-12 h-12 object-contain flex-shrink-0" />
+                                )}
+                                <div className="flex-grow">
+                                  <p className="font-semibold text-white">{cert.name}</p>
+                                   {cert.verify_url && (
+                                    <a href={cert.verify_url} target="_blank" rel="noopener noreferrer">
+                                    <Button variant="link" className="p-0 h-auto text-neon-pink hover:text-electric-teal font-mono text-sm">
+                                      Verify <ExternalLink className="w-3 h-3 ml-1" />
+                                    </Button>
+                                  </a>
+                                   )}
+                                </div>
+                                {formattedExpDate && (
+                                  <div className="absolute bottom-2 right-4 text-xs text-text-light font-mono">
+                                    expires {formattedExpDate}
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     ))}

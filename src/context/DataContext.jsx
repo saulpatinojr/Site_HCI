@@ -30,12 +30,22 @@ export const DataProvider = ({ children }) => {
     const fetchData = useCallback(async (table, setData, loadingKey, errorKey, orderOptions = { column: 'created_at', ascending: false }) => {
         try {
             setLoading(prev => ({ ...prev, [loadingKey]: true }));
+            setError(prev => ({ ...prev, [errorKey]: null }));
+            
+            // Check if Supabase is properly configured
+            if (!supabase || !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('placeholder')) {
+                console.warn(`Supabase not configured, using empty data for ${loadingKey}`);
+                setData([]);
+                return;
+            }
+            
             const { data, error } = await supabase.from(table).select('*').order(orderOptions.column, { ascending: orderOptions.ascending });
             if (error) throw error;
-            setData(data);
+            setData(data || []);
         } catch (err) {
             setError(prev => ({ ...prev, [errorKey]: err.message }));
             console.error(`Error fetching ${table}:`, err);
+            setData([]);
         } finally {
             setLoading(prev => ({ ...prev, [loadingKey]: false }));
         }
