@@ -1,6 +1,6 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
-import PageHeader from '@/components/PageHeader';
+import { Helmet } from 'react-helmet-async';
+import Title from '@/components/Title';
 import { motion } from 'framer-motion';
 import { Layers } from 'lucide-react';
 
@@ -13,7 +13,7 @@ const FrameworksPage = () => {
             </Helmet>
             <main className="py-20 px-4">
                 <div className="max-w-6xl mx-auto">
-                    <PageHeader
+                    <Title
                         title="Frameworks"
                         subtitle="Structured approaches and methodologies to guide your cloud architecture decisions."
                     />

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { supabase } from '@/lib/customSupabaseClient';
 
 const DataContext = createContext();
@@ -13,11 +13,11 @@ export const DataProvider = ({ children }) => {
     const [walkthroughItems, setWalkthroughItems] = useState([]);
 
     const [loading, setLoading] = useState({
-        videos: true,
-        blog: true,
-        certifications: true,
-        checklists: true,
-        walkthrough: true
+        videos: false,
+        blog: false,
+        certifications: false,
+        checklists: false,
+        walkthrough: false
     });
     const [error, setError] = useState({
         videos: null,
@@ -27,37 +27,54 @@ export const DataProvider = ({ children }) => {
         walkthrough: null
     });
 
-    const fetchData = useCallback(async (table, setData, loadingKey, errorKey, orderOptions = { column: 'created_at', ascending: false }) => {
+    const fetchData = useCallback(async (table, loadingKey, errorKey, options = {}) => {
+        const { orderOptions = { column: 'created_at', ascending: false }, signal } = options;
+
+        const stateMap = {
+            'videos': setVideos,
+            'blog_posts': setBlogPosts,
+            'certifications': setCertifications,
+            'checklists': setChecklists,
+            'walkthrough_items': setWalkthroughItems,
+        };
+        const setData = stateMap[table];
+
+        if (!setData) {
+            console.error(`Invalid table for fetchData: ${table}`);
+            return;
+        }
+
+        setLoading(prev => ({ ...prev, [loadingKey]: true }));
+        setError(prev => ({ ...prev, [errorKey]: null }));
+
         try {
-            setLoading(prev => ({ ...prev, [loadingKey]: true }));
-            setError(prev => ({ ...prev, [errorKey]: null }));
-            
-            // Check if Supabase is properly configured
             if (!supabase || !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('placeholder')) {
-                console.warn(`Supabase not configured, using empty data for ${loadingKey}`);
                 setData([]);
                 return;
             }
-            
-            const { data, error } = await supabase.from(table).select('*').order(orderOptions.column, { ascending: orderOptions.ascending });
-            if (error) throw error;
+
+            const { data, error: fetchError } = await supabase
+                .from(table)
+                .select('*')
+                .order(orderOptions.column, { ascending: orderOptions.ascending })
+                .abortSignal(signal);
+
+            if (signal?.aborted) return;
+
+            if (fetchError) throw fetchError;
             setData(data || []);
         } catch (err) {
-            setError(prev => ({ ...prev, [errorKey]: err.message }));
-            console.error(`Error fetching ${table}:`, err);
-            setData([]);
+            if (err.name !== 'AbortError') {
+                const errorMessage = err.message || 'An unknown error occurred.';
+                setError(prev => ({ ...prev, [errorKey]: errorMessage }));
+                setData([]);
+            }
         } finally {
-            setLoading(prev => ({ ...prev, [loadingKey]: false }));
+            if (!signal?.aborted) {
+                setLoading(prev => ({ ...prev, [loadingKey]: false }));
+            }
         }
     }, []);
-
-    useEffect(() => {
-        fetchData('videos', setVideos, 'videos', 'videos');
-        fetchData('blog_posts', setBlogPosts, 'blog', 'blog');
-        fetchData('certifications', setCertifications, 'certifications', 'certifications', { column: 'display_order', ascending: true });
-        fetchData('checklists', setChecklists, 'checklists', 'checklists');
-        fetchData('walkthrough_items', setWalkthroughItems, 'walkthrough', 'walkthrough', { column: 'display_order', ascending: true });
-    }, [fetchData]);
 
     const value = {
         videos,
@@ -67,6 +84,7 @@ export const DataProvider = ({ children }) => {
         walkthroughItems,
         loading,
         error,
+        fetchData,
     };
 
     return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

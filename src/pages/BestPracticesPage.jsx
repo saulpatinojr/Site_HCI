@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { Helmet } from 'react-helmet';
-import PageHeader from '@/components/PageHeader';
+import { Helmet } from 'react-helmet-async';
+import Title from '@/components/Title';
 import { motion } from 'framer-motion';
 import { Cloud, Server, Database, CheckSquare, Loader2, ExternalLink } from 'lucide-react';
 import { useData } from '@/context/DataContext';
@@ -57,7 +57,7 @@ const BestPracticesPage = () => {
             </Helmet>
             <main className="py-20 px-4">
                 <div className="max-w-6xl mx-auto">
-                    <PageHeader
+                    <Title
                         title="Best Practices"
                         subtitle="Actionable checklists to ensure your cloud environments are secure, resilient, and optimized."
                     />

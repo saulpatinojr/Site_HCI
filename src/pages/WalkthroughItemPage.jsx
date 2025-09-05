@@ -1,56 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
-import { supabase } from '@/lib/customSupabaseClient';
-import PageHeader from '@/components/PageHeader';
+import { useData } from '@/context/DataContext';
+import Title from '@/components/Title';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
 const WalkthroughItemPage = () => {
     const { slug } = useParams();
-    const [item, setItem] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const { walkthroughItems, fetchData, loading, error } = useData();
 
     useEffect(() => {
-        const fetchItem = async () => {
-            setLoading(true);
-            try {
-                const { data, error } = await supabase
-                    .from('walkthrough_items')
-                    .select('*')
-                    .eq('slug', slug)
-                    .single();
+        const controller = new AbortController();
+        if (walkthroughItems.length === 0) {
+            fetchData('walkthrough_items', 'walkthrough', 'walkthrough', { 
+                signal: controller.signal,
+                orderOptions: { column: 'display_order', ascending: true }
+            });
+        }
+        return () => controller.abort();
+    }, [fetchData, walkthroughItems.length]);
 
-                if (error) {
-                    throw error;
-                }
-                setItem(data);
-            } catch (err) {
-                console.error(err);
-                setError('Failed to load the walkthrough. It might not exist.');
-            } finally {
-                setLoading(false);
-            }
-        };
+    const item = walkthroughItems.find(i => i.slug === slug);
 
-        fetchItem();
-    }, [slug]);
-
-    if (loading) {
+    if (loading.walkthrough && !item) {
         return (
             <div className="flex justify-center items-center min-h-screen">
                 <p className="text-electric-teal font-mono text-2xl">Loading Transmission...</p>
             </div>
         );
     }
-    
-    if (error) {
+
+    if (error.walkthrough || !item) {
         return (
             <main className="py-20 px-4 text-center">
-                 <PageHeader title="Transmission Lost" subtitle="> Could not retrieve data." />
-                 <p className="text-text-med mt-4">{error}</p>
+                 <Title title="Transmission Lost" subtitle="> Could not retrieve data." />
+                 <p className="text-text-med mt-4">{error.walkthrough || 'The requested item could not be found.'}</p>
                  <Button asChild className="mt-8">
                      <Link to="/"><ArrowLeft className="mr-2 h-4 w-4" /> Return to Home</Link>
                  </Button>
@@ -76,7 +62,7 @@ const WalkthroughItemPage = () => {
                                 <ArrowLeft className="mr-2 h-4 w-4" /> Back to Walkthroughs
                             </Link>
                         </Button>
-                        <PageHeader title={item.title} subtitle={item.description} />
+                        <Title title={item.title} subtitle={item.description} />
                     </motion.div>
                     
                     <motion.div

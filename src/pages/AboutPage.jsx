@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Award, ExternalLink, ShieldCheck, Loader2, Mic } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
+import Title from '@/components/Title';
 import { Button } from '@/components/ui/button';
 import { useData } from '@/context/DataContext';
 import SessionizeWidget from '@/components/SessionizeWidget';
@@ -33,7 +33,7 @@ const AboutPage = () => {
       );
     });
     return sorted;
-  }, [certifications]);
+  }, [certificationsByIssuer]);
 
   const PREFERRED_ISSUER_ORDER = [
     'Amazon Web Services',
@@ -64,7 +64,7 @@ const AboutPage = () => {
       </Helmet>
       <main className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <PageHeader title="About The Architect" subtitle="> System.out.println('Hello, World!');" />
+          <Title title="About The Architect" subtitle="> System.out.println('Hello, World!');" />
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -74,7 +74,7 @@ const AboutPage = () => {
           >
             <div className="md:col-span-2 flex justify-center items-center">
               <div className="w-56 h-56 rounded-lg bg-bg-light border-2 border-neon-pink p-2 shadow-[0_0_20px_var(--neon-pink)]">
-                <img src="https://horizons-cdn.hostinger.com/24f0c0cb-5154-4515-a61d-c58b5e4b263e/b1f7e75441066ec8505f5a5ccd7a071d.jpg" className="w-full h-full rounded-md object-cover" alt="Profile picture of Saul Patino" />
+                <img src="https://horizons-cdn.hostinger.com/24f0c0cb-5154-4515-a61d-c58b5e4b263e/b1f7e75441066ec8505f5a5ccd7a071d.jpg" className="w-full h-full rounded-md object-cover" alt="Saul Patino" />
               </div>
             </div>
             <div className="md:col-span-3 space-y-4">

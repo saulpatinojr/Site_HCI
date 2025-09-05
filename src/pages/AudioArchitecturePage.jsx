@@ -1,8 +1,8 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Podcast, Headphones, Mic, Sparkles } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
+import Title from '@/components/Title';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -15,7 +15,7 @@ const AudioArchitecturePage = () => {
       </Helmet>
       <main className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <PageHeader title="Audio Architecture" subtitle="> Listen to the latest insights." />
+          <Title title="Audio Architecture" subtitle="> Listen to the latest insights." />
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}

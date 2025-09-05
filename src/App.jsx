@@ -20,6 +20,7 @@ import LoginPage from '@/pages/LoginPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import WalkthroughItemPage from '@/pages/WalkthroughItemPage';
 import CertificationsPage from '@/pages/CertificationsPage';
+import { HelmetProvider } from 'react-helmet-async';
 
 function App() {
   const location = useLocation();
@@ -59,10 +60,12 @@ function App() {
 
 function AppWrapper() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <DataProvider>
-          <App />
+          <HelmetProvider>
+            <App />
+          </HelmetProvider>
         </DataProvider>
       </AuthProvider>
     </Router>

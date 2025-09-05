@@ -1,8 +1,8 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Send } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
+import Title from '@/components/Title';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { Label } from '@/components/ui/label';
@@ -47,7 +47,7 @@ const ContactPage = () => {
       </Helmet>
       <main className="py-20 px-4">
         <div className="max-w-5xl mx-auto">
-          <PageHeader title="Open Comms" subtitle="> Have a question, a project proposal, or just want to talk cloud? I'd love to hear from you." />
+          <Title title="Open Comms" subtitle="> Have a question, a project proposal, or just want to talk cloud? I'd love to hear from you." />
           <div className="grid md:grid-cols-2 gap-12">
             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="retro-card p-8">
               <h3 className="text-2xl font-display text-electric-teal mb-6">Secure Transmission Form</h3>

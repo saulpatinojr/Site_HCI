@@ -75,7 +75,6 @@ const SessionizeWidget = ({ type = 'sessions' }) => {
         `);
         iframeDoc.close();
       } catch (e) {
-        console.error("Error writing to iframe:", e);
         if(isMounted) {
           setError("Failed to load widget content into the container.");
         }

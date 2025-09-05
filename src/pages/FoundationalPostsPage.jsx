@@ -1,14 +1,25 @@
-import React from 'react';
-import { Helmet } from 'react-helmet';
+import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { ArrowRight, Info, Loader2 } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
+import Title from '@/components/Title';
 import { useData } from '@/context/DataContext';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const FoundationalPostsPage = () => {
-    const { blogPosts, loading } = useData();
+    const { blogPosts, loading, fetchData } = useData();
+
+    useEffect(() => {
+        const controller = new AbortController();
+        if (blogPosts.length === 0) {
+            fetchData('blog_posts', 'blog', 'blog', { signal: controller.signal });
+        }
+
+        return () => {
+            controller.abort();
+        };
+    }, [fetchData, blogPosts.length]);
 
     return (
         <>
@@ -18,7 +29,7 @@ const FoundationalPostsPage = () => {
             </Helmet>
             <main className="py-20 px-4">
                 <div className="max-w-7xl mx-auto">
-                    <PageHeader
+                    <Title
                         title="Foundational Posts"
                         subtitle="> Essential reads that form the cornerstone of modern cloud architecture understanding."
                     />
@@ -31,7 +42,7 @@ const FoundationalPostsPage = () => {
                         <div className="text-center p-10 retro-card">
                             <h3 className="text-3xl font-display text-electric-teal mb-4">Transmission Log Empty</h3>
                             <p className="text-text-med mb-6 max-w-2xl mx-auto font-mono">
-                                > This section is ready for your content. Blog posts are managed via the `posts` table in your Supabase project.
+                                &gt; This section is ready for your content. Blog posts are managed via the `posts` table in your Supabase project.
                             </p>
                             <Button asChild className="font-mono bg-neon-pink text-bg-dark hover:bg-electric-teal rounded-none">
                                 <Link to="/management-guide">

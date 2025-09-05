@@ -1,6 +1,6 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
-import PageHeader from '@/components/PageHeader';
+import { Helmet } from 'react-helmet-async';
+import Title from '@/components/Title';
 import { motion } from 'framer-motion';
 import { BookOpen, Key, Users, Info, CheckSquare, Youtube } from 'lucide-react';
 
@@ -19,7 +19,7 @@ const ManagementGuidePage = () => {
       </Helmet>
       <main className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <PageHeader title="Admin Panel" subtitle="> Your central hub for updating website content via Supabase." />
+          <Title title="Admin Panel" subtitle="> Your central hub for updating website content via Supabase." />
 
           <div className="space-y-16">
             

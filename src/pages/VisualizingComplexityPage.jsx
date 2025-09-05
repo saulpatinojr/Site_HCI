@@ -1,8 +1,8 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Play, Film, Loader2 } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
+import Title from '@/components/Title';
 import { useData } from '@/context/DataContext';
 
 const VisualizingComplexityPage = () => {
@@ -21,7 +21,7 @@ const VisualizingComplexityPage = () => {
       </Helmet>
       <main className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          <PageHeader
+          <Title
             title="Visualizing Complexity"
             subtitle="> Technical concepts brought to life through detailed visual explanations and demonstrations."
           />
@@ -33,7 +33,7 @@ const VisualizingComplexityPage = () => {
             <div className="text-center p-10 retro-card">
                 <Film className="w-16 h-16 mx-auto text-electric-teal mb-4" />
                 <h3 className="text-3xl font-display text-electric-teal">No Visual Data Found</h3>
-                <p className="text-text-med mt-2 font-mono">> Video content is managed via Supabase. Add videos to the `youtube_videos` table.</p>
+                <p className="text-text-med mt-2 font-mono">&gt; Video content is managed via Supabase. Add videos to the `youtube_videos` table.</p>
             </div>
            ) : (
              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

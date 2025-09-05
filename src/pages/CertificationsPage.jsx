@@ -1,13 +1,27 @@
-import React from 'react';
-import { Helmet } from 'react-helmet';
+import React, { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Award, ExternalLink } from 'lucide-react';
 import { useData } from '@/context/DataContext';
-import PageHeader from '@/components/PageHeader';
+import Title from '@/components/Title';
 import { Button } from '@/components/ui/button';
 
 const CertificationsPage = () => {
-    const { certifications, loading, error } = useData();
+    const { certifications, loading, error, fetchData } = useData();
+
+    useEffect(() => {
+        const controller = new AbortController();
+        if (certifications.length === 0) {
+            fetchData('certifications', 'certifications', 'certifications', {
+                orderOptions: { column: 'display_order', ascending: true },
+                signal: controller.signal
+            });
+        }
+
+        return () => {
+            controller.abort();
+        };
+    }, [fetchData, certifications.length]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -39,7 +53,7 @@ const CertificationsPage = () => {
             </Helmet>
             <main className="py-20 px-4">
                 <div className="max-w-6xl mx-auto">
-                    <PageHeader title="Professional Certifications" subtitle="> Validated expertise in cloud and hybrid technologies." />
+                    <Title title="Professional Certifications" subtitle="> Validated expertise in cloud and hybrid technologies." />
 
                     {loading.certifications && (
                         <div className="text-center py-16">
