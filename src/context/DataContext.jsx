@@ -1,91 +1,87 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { supabase } from '@/lib/customSupabaseClient';
 
-const DataContext = createContext();
+const DataContext = createContext(null);
 
-export const useData = () => useContext(DataContext);
+export const useData = () => {
+  const context = useContext(DataContext);
+  if (context === null) {
+    throw new Error('useData must be used within a DataProvider');
+  }
+  return context;
+};
 
 export const DataProvider = ({ children }) => {
-    const [videos, setVideos] = useState([]);
-    const [blogPosts, setBlogPosts] = useState([]);
-    const [certifications, setCertifications] = useState([]);
-    const [checklists, setChecklists] = useState([]);
-    const [walkthroughItems, setWalkthroughItems] = useState([]);
+  const [data, setData] = useState({
+    videos: [],
+    blogPosts: [],
+    embeddedData: [],
+    certifications: [],
+    checklists: [],
+    frameworks: [],
+    pillarDetails: [],
+  });
 
-    const [loading, setLoading] = useState({
-        videos: false,
-        blog: false,
-        certifications: false,
-        checklists: false,
-        walkthrough: false
+  const [loading, setLoading] = useState({
+    videos: true,
+    blog: true,
+    embeddedData: true,
+    certifications: true,
+    checklists: true,
+    frameworks: true,
+    pillarDetails: true,
+  });
+
+  const [error, setError] = useState({
+    videos: null,
+    blog: null,
+    embeddedData: null,
+    certifications: null,
+    checklists: null,
+    frameworks: null,
+    pillarDetails: null,
+  });
+
+  const fetchData = useCallback(async (table, dataKey, options = {}) => {
+    setLoading(prev => ({ ...prev, [dataKey]: true }));
+    setError(prev => ({ ...prev, [dataKey]: null }));
+    try {
+      // Check if Supabase is properly configured
+      if (!supabase || !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('placeholder')) {
+        console.warn(`Supabase not configured, using empty data for ${dataKey}`);
+        setData(prev => ({ ...prev, [dataKey]: [] }));
+        return;
+      }
+      
+      let query = supabase.from(table).select(options.select || '*');
+      if (options.order) {
+        query = query.order(options.order.column, { ascending: options.order.ascending });
+      }
+      const { data: result, error: fetchError } = await query;
+      if (fetchError) throw fetchError;
+      setData(prev => ({ ...prev, [dataKey]: result || [] }));
+    } catch (e) {
+      console.error(`Error fetching ${dataKey}:`, e.message || 'Unknown error');
+      setError(prev => ({ ...prev, [dataKey]: e.message }));
+      setData(prev => ({ ...prev, [dataKey]: [] }));
+    } finally {
+      setLoading(prev => ({ ...prev, [dataKey]: false }));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Fetch certifications data on mount
+    fetchData('certifications', 'certifications', { 
+      order: { column: 'display_order', ascending: true } 
     });
-    const [error, setError] = useState({
-        videos: null,
-        blog: null,
-        certifications: null,
-        checklists: null,
-        walkthrough: null
-    });
+  }, [fetchData]);
+  
+  const value = {
+    ...data,
+    loading,
+    error,
+    fetchData,
+  };
 
-    const fetchData = useCallback(async (table, loadingKey, errorKey, options = {}) => {
-        const { orderOptions = { column: 'created_at', ascending: false }, signal } = options;
-
-        const stateMap = {
-            'videos': setVideos,
-            'blog_posts': setBlogPosts,
-            'certifications': setCertifications,
-            'checklists': setChecklists,
-            'walkthrough_items': setWalkthroughItems,
-        };
-        const setData = stateMap[table];
-
-        if (!setData) {
-            console.error(`Invalid table for fetchData: ${table}`);
-            return;
-        }
-
-        setLoading(prev => ({ ...prev, [loadingKey]: true }));
-        setError(prev => ({ ...prev, [errorKey]: null }));
-
-        try {
-            if (!supabase || !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('placeholder')) {
-                setData([]);
-                return;
-            }
-
-            const { data, error: fetchError } = await supabase
-                .from(table)
-                .select('*')
-                .order(orderOptions.column, { ascending: orderOptions.ascending })
-                .abortSignal(signal);
-
-            if (signal?.aborted) return;
-
-            if (fetchError) throw fetchError;
-            setData(data || []);
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                const errorMessage = err.message || 'An unknown error occurred.';
-                setError(prev => ({ ...prev, [errorKey]: errorMessage }));
-                setData([]);
-            }
-        } finally {
-            if (!signal?.aborted) {
-                setLoading(prev => ({ ...prev, [loadingKey]: false }));
-            }
-        }
-    }, []);
-
-    const value = {
-        videos,
-        blogPosts,
-        certifications,
-        checklists,
-        walkthroughItems,
-        loading,
-        error,
-        fetchData,
-    };
-
-    return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };

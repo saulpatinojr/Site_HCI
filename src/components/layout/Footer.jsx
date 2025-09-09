@@ -17,6 +17,12 @@ function Footer() {
             <p className="text-text-med text-sm mt-2 font-mono">
               &copy; 2025 HCI // All Rights Reserved
             </p>
+            <div className="mt-3">
+              <a href="//www.dmca.com/Protection/Status.aspx?ID=ac0893f6-1f9d-496b-b76d-caa23ab61130" title="DMCA.com Protection Status" className="dmca-badge">
+                <img src="https://images.dmca.com/Badges/dmca_protected_sml_120n.png?ID=ac0893f6-1f9d-496b-b76d-caa23ab61130" alt="DMCA.com Protection Status" />
+              </a>
+              <script src="https://images.dmca.com/Badges/DMCABadgeHelper.min.js"></script>
+            </div>
           </div>
           
           <div className="flex flex-col items-center space-y-2">
