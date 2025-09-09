@@ -23,15 +23,25 @@
 ### Deployment Commands
 
 ```bash
-# Manual deployment
+# Manual deployment (clears cache automatically)
 npm run firebase:deploy
 
-# Automated deployment with validation
+# Automated deployment with validation (recommended)
 npm run deploy
 
 # Local preview
 npm run firebase:serve
+
+# Force cache clear and rebuild
+rm -rf dist && npm run build && firebase deploy
 ```
+
+### Cache Management
+
+**Important**: Firebase hosting can cache old builds, causing deployment issues. The deployment script automatically:
+1. Clears the `dist/` folder before each build
+2. Forces fresh file generation with new hashes
+3. Prevents browser caching of outdated assets
 
 ### Environment Requirements
 - Node.js version specified in `.nvmrc`

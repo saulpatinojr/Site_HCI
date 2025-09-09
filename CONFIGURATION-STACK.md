@@ -41,9 +41,17 @@
 
 ### Deployment Process
 1. `npm run deploy` → Validation and build
-2. `firebase deploy` → Upload to hosting
-3. Cache headers applied automatically
-4. SPA routing configured
+2. **Cache clearing** → Removes `dist/` folder
+3. **Fresh build** → Creates new files with unique hashes
+4. `firebase deploy` → Upload to hosting
+5. Cache headers applied automatically
+6. SPA routing configured
+
+### Cache Management
+To prevent deployment issues:
+- Always clear `dist/` before building
+- Use `npm run deploy` for automated cache clearing
+- Manual clearing: `rm -rf dist && npm run build`
 
 ## Dependencies Overview
 - **UI Components**: Radix UI primitives

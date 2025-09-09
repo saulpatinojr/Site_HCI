@@ -2,6 +2,7 @@
 
 import { execSync } from 'child_process';
 import fs from 'fs';
+import path from 'path';
 
 console.log('🚀 Starting deployment process...');
 
@@ -18,6 +19,12 @@ try {
   // Run linting
   console.log('🔍 Running linter...');
   execSync('npm run lint', { stdio: 'inherit' });
+
+  // Clear dist folder to prevent caching issues
+  console.log('🗑️  Clearing build cache...');
+  if (fs.existsSync('dist')) {
+    fs.rmSync('dist', { recursive: true, force: true });
+  }
 
   // Build the project
   console.log('🏗️  Building project...');

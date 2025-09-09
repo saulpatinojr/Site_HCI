@@ -28,11 +28,18 @@ const StatCard = ({
     </motion.div>;
     
 const HomePage = () => {
-  const {
-    videos = [],
-    blogPosts = [],
-    loading = {}
-  } = useData() || {};
+  let videos = [];
+  let blogPosts = [];
+  let loading = {};
+  
+  try {
+    const data = useData();
+    videos = data?.videos || [];
+    blogPosts = data?.blogPosts || [];
+    loading = data?.loading || {};
+  } catch (error) {
+    console.error('Error loading data:', error);
+  }
 
   return <>
             <Helmet>
@@ -88,8 +95,8 @@ const HomePage = () => {
 
                 <section className="py-20 px-4 bg-bg-med/50 border-y-2 border-cyber-purple">
                     <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-                        <StatCard value={loading.blog ? '...' : blogPosts.length} label="Foundational Posts" delay={0.2} />
-                        <StatCard value={loading.videos ? '...' : videos.length} label="Visualizations" delay={0.4} />
+                        <StatCard value={loading.blog ? '...' : (blogPosts?.length || 0)} label="Foundational Posts" delay={0.2} />
+                        <StatCard value={loading.videos ? '...' : (videos?.length || 0)} label="Visualizations" delay={0.4} />
                         <StatCard value="03" label="Core Pillars" delay={0.6} />
                     </div>
                 </section>
@@ -132,7 +139,7 @@ const HomePage = () => {
                             <p className="text-lg font-mono text-text-med max-w-2xl mx-auto">&gt; Key articles from the knowledge base.</p>
                         </motion.div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {(loading.blog ? Array(3).fill({}) : blogPosts.slice(0, 3)).map((post, index) => <motion.div key={post.id || index} initial={{
+                            {(loading.blog ? Array(3).fill({}) : (blogPosts || []).slice(0, 3)).map((post, index) => <motion.div key={post.id || index} initial={{
               opacity: 0,
               y: 30
             }} whileInView={{
