@@ -29,10 +29,10 @@ const StatCard = ({
     
 const HomePage = () => {
   const {
-    videos,
-    blogPosts,
-    loading
-  } = useData();
+    videos = [],
+    blogPosts = [],
+    loading = {}
+  } = useData() || {};
 
   return <>
             <Helmet>
@@ -111,7 +111,9 @@ const HomePage = () => {
                                 <div className="accent-line mx-auto md:mx-0"></div>
                                 <p className="text-lg text-text-med leading-relaxed mt-6">As the cloud landscape constantly shifts, complexity can obscure the path forward. Hybrid Cloud Insights is your navigator, translating multifaceted architectural challenges into lucid and decisive guidance.</p>
                          </motion.div>
-                         <WalkthroughCarousel />
+                         <div className="text-center p-8 retro-card">
+                           <p className="text-text-med font-mono">Walkthrough content coming soon...</p>
+                         </div>
                     </div>
                 </section>
 
